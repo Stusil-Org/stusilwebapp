@@ -55,6 +55,7 @@ uniform float bendInfluence;
 uniform bool parallax;
 uniform float parallaxStrength;
 uniform vec2 parallaxOffset;
+uniform float globalZoom;
 
 uniform vec3 lineGradient[8];
 uniform int lineGradientCount;
@@ -123,7 +124,7 @@ vec3 getLineColor(float t, vec3 baseColor) {
 }
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
-  vec2 baseUv = (2.0 * fragCoord - iResolution.xy) / iResolution.y;
+  vec2 baseUv = ((2.0 * fragCoord - iResolution.xy) / iResolution.y) * globalZoom;
   baseUv.y *= -1.0;
   
   if (parallax) {
@@ -360,6 +361,7 @@ export default function FloatingLines({
       parallax: { value: parallax },
       parallaxStrength: { value: parallaxStrength },
       parallaxOffset: { value: new Vector2(0, 0) },
+      globalZoom: { value: 1.0 },
 
       lineGradient: {
         value: Array.from({ length: MAX_GRADIENT_STOPS }, () => new Vector3(1, 1, 1))
@@ -400,6 +402,11 @@ export default function FloatingLines({
       const canvasWidth = renderer.domElement.width;
       const canvasHeight = renderer.domElement.height;
       uniforms.iResolution.value.set(canvasWidth, canvasHeight, 1);
+
+      // Auto-zoom for mobile screens (< 768px)
+      // Increasing this makes the waves appear "further away" / smaller relative to screen.
+      const isMobile = width < 768;
+      uniforms.globalZoom.value = isMobile ? 2.0 : 1.0;
     };
 
     setSize();
