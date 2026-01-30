@@ -79,7 +79,7 @@ export default function JoinPage() {
                             type="submit"
                             className="mt-4 w-full rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 py-3.5 text-base font-bold text-white shadow-lg shadow-purple-500/25 transition-all hover:scale-[1.02] hover:shadow-purple-500/40 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-black"
                         >
-                            Join Waitlist
+                            Join
                         </button>
                     </form>
                 </div>

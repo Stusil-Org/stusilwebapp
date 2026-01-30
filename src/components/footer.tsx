@@ -7,7 +7,7 @@ const footerLinks = [
         links: [
             { name: "About Us", href: "/about" },
             { name: "How It Works", href: "/how-it-works" },
-            { name: "Join Waitlist", href: "/join" },
+            { name: "Join", href: "/join" },
         ],
     },
     {
