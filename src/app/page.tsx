@@ -53,7 +53,7 @@ export default function Home() {
           <div className="flex flex-col items-center space-y-4 md:flex-row md:space-x-6 md:space-y-0">
             <Link href="/join">
               <button className="group relative rounded-full bg-white px-8 py-3.5 text-base font-bold text-black shadow-[0_0_40px_-5px_rgba(255,255,255,0.3)] transition-all hover:scale-105 hover:shadow-[0_0_60px_-10px_rgba(255,255,255,0.4)]">
-                Join
+                Join Now
               </button>
             </Link>
 
