@@ -65,7 +65,7 @@ export function Navbar() {
 
             {/* 3. Mobile Menu Toggle */}
             <button
-                className="md:hidden text-white z-50 relative p-2 focus:outline-none"
+                className="md:hidden text-white z-[60] relative p-2 focus:outline-none"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label="Toggle menu"
             >
@@ -104,13 +104,13 @@ export function Navbar() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="fixed inset-0 z-40 flex flex-col items-center justify-start pt-32 bg-black/95 backdrop-blur-2xl md:hidden overflow-y-auto"
+                        className="fixed inset-0 z-[55] flex flex-col items-center justify-center h-[100dvh] bg-black md:hidden overflow-y-auto"
                     >
                         {/* Background subtle gradient */}
                         <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-black pointer-events-none" />
 
                         <motion.div
-                            className="relative z-10 flex flex-col items-center space-y-6 w-full max-w-sm px-6 pb-12"
+                            className="relative z-10 flex flex-col items-center space-y-8 w-full max-w-sm px-6 py-12"
                             initial="closed"
                             animate="open"
                             exit="closed"
@@ -143,7 +143,7 @@ export function Navbar() {
                                     open: { y: 0, opacity: 1 },
                                     closed: { y: 20, opacity: 0 }
                                 }}
-                                className="pt-6 w-full"
+                                className="pt-8 w-full"
                             >
                                 <Link href="/join" onClick={() => setIsMobileMenuOpen(false)} className="block w-full">
                                     <button className="w-full rounded-full bg-white py-4 text-lg font-bold text-black transition-all active:scale-95 shadow-[0_0_30px_-5px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_-5px_rgba(255,255,255,0.5)]">
