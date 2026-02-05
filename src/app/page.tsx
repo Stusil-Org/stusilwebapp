@@ -34,7 +34,7 @@ export default function Home() {
         </div>
 
         {/* Gradient Glow behind text */}
-        <div className="absolute top-1/2 left-1/2 z-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-purple-600/60 blur-[120px] md:h-[800px] md:w-[800px]" />
+        <div className="absolute top-1/2 left-1/2 z-0 h-[250px] w-[250px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-purple-600/60 blur-[120px] md:h-[800px] md:w-[800px]" />
 
         <div className="relative z-10 flex flex-col items-center px-4 text-center md:px-0">
           {/* 'NOW IN BETA' Badge */}
