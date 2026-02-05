@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Menu, X, User as UserIcon, LogOut } from "lucide-react";
+import { Menu, X, User as UserIcon, LogOut, Settings, Trash, MessageSquare } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
@@ -10,10 +10,10 @@ import { useRouter } from "next/navigation";
 
 const navLinks = [
     { name: "Home", href: "/" },
-    { name: "About", href: "/about" },
     { name: "How It Works", href: "/how-it-works" },
     { name: "Community", href: "/community" },
     { name: "Portfolio", href: "/portfolio" },
+    { name: "Messages", href: "/messages" },
 ];
 
 export function Navbar() {
@@ -117,6 +117,14 @@ export function Navbar() {
                                         <div className="px-3 py-2 text-gray-300 truncate border-b border-white/5 mb-2">
                                             {user.email}
                                         </div>
+                                        <Link
+                                            href="/settings"
+                                            onClick={() => setIsUserMenuOpen(false)}
+                                            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+                                        >
+                                            <Settings size={16} />
+                                            Settings
+                                        </Link>
                                         {!showSignOutConfirm ? (
                                             <button
                                                 onClick={() => setShowSignOutConfirm(true)}

@@ -1,124 +1,96 @@
-"use client";
-
+import { createAdminClient } from "@/utils/supabase/admin";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import { Search, User, Briefcase, Code } from "lucide-react";
 import Link from "next/link";
+import { User, Code } from "lucide-react";
 
-const members = [
-    {
-        name: "Member HiybnF",
-        role: "Developer",
-        roleIcon: Code,
-        tags: ["TypeScript", "React"],
-        bio: "I build things",
-        color: "purple",
-    },
-    {
-        name: "Tanisha",
-        role: "Founder",
-        roleIcon: Briefcase,
-        tags: ["Entrepreneurship"],
-        bio: "I love exploring innovation and business",
-        color: "indigo",
-    },
-    // Adding more placeholders to fill the grid
-    {
-        name: "Alex Designer",
-        role: "Designer",
-        roleIcon: User,
-        tags: ["Figma", "UI/UX"],
-        bio: "Designing intuitive user experiences.",
-        color: "pink",
-    },
-    {
-        name: "Sam Coder",
-        role: "Full Stack",
-        roleIcon: Code,
-        tags: ["Next.js", "Node.js"],
-        bio: "Full stack enthusiast building web apps.",
-        color: "blue",
-    },
-];
+// Force dynamic rendering to always fetch fresh data
+export const dynamic = 'force-dynamic';
 
-export default function CommunityPage() {
+export default async function CommunityPage() {
+    // We need to list users regardless of auth status of the viewer
+    // Note: This requires SUPABASE_SERVICE_ROLE_KEY in .env
+    const supabaseAdmin = createAdminClient();
+
+    // Fetch users. Note limit default is 50.
+    const { data: { users }, error } = await supabaseAdmin.auth.admin.listUsers();
+
+    if (error) {
+        console.error("Error fetching users:", error);
+        return (
+            <main className="flex min-h-screen flex-col bg-black text-white selection:bg-purple-500/30">
+                <Navbar />
+                <div className="flex-1 flex items-center justify-center">
+                    <p className="text-red-400">Failed to load community members. Please check configuration.</p>
+                </div>
+                <Footer />
+            </main>
+        );
+    }
+
+    // Filter users who might not have metadata set up yet or are deleted
+    const activeUsers = users.filter(u => u.user_metadata && !u.banned_until);
+
     return (
         <main className="flex min-h-screen flex-col bg-black text-white selection:bg-purple-500/30">
             <Navbar />
 
-            <section className="flex flex-1 flex-col items-center px-4 pt-32 pb-20">
-                <div className="w-full max-w-5xl">
-                    {/* Header Section */}
-                    <div className="mb-12 text-center">
-                        <h1 className="mb-4 text-4xl font-bold tracking-tight md:text-6xl">
-                            Student <span className="text-purple-500">Community</span>
-                        </h1>
-                        <p className="mb-8 text-lg text-gray-400">
-                            Discover peers, join projects, and collaborate with motivated
-                            students.
-                        </p>
+            <section className="flex-1 px-4 pt-32 pb-20 max-w-7xl mx-auto w-full">
+                <div className="mb-16 text-center">
+                    <h1 className="mb-4 text-4xl font-bold tracking-tight md:text-6xl">
+                        Our <span className="text-purple-500">Community</span>
+                    </h1>
+                    <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+                        Discover talented individuals, explore their portfolios, and connect with like-minded creators.
+                    </p>
+                </div>
 
-                        <Link href="/join">
-                            <button className="rounded-full bg-gradient-to-r from-purple-500 to-purple-600 px-8 py-3 font-bold text-white shadow-lg shadow-purple-500/30 transition-transform hover:scale-105 hover:shadow-purple-500/50">
-                                Join Community
-                            </button>
-                        </Link>
-                    </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {activeUsers.map((user) => {
+                        const metadata = user.user_metadata || {};
+                        const name = metadata.full_name || user.email?.split('@')[0] || "User";
+                        const skills = metadata.skills ? metadata.skills.split(',').slice(0, 3) : [];
 
-                    {/* Search Bar */}
-                    <div className="mx-auto mb-16 max-w-2xl relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                            <Search className="h-5 w-5 text-gray-500" />
-                        </div>
-                        <input
-                            type="text"
-                            placeholder="Search by skills, role, or name..."
-                            className="w-full rounded-2xl border border-white/10 bg-white/5 py-4 pl-12 pr-4 text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
-                        />
-                    </div>
-
-                    {/* Members Grid */}
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {members.map((member, index) => (
-                            <div
-                                key={index}
-                                className="group relative flex flex-col rounded-3xl border border-white/10 bg-white/5 p-6 transition-all hover:bg-white/10"
+                        return (
+                            <Link
+                                href={`/community/${user.id}`}
+                                key={user.id}
+                                className="group relative rounded-2xl border border-white/10 bg-white/5 p-6 transition-all hover:-translate-y-1 hover:border-purple-500/30 hover:shadow-xl hover:shadow-purple-500/10"
                             >
-                                <div className="mb-6 flex items-start justify-between">
-                                    {/* Avatar Placeholder */}
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-900/30 text-purple-400 ring-1 ring-purple-500/30">
-                                        <User className="h-6 w-6" />
+                                <div className="flex flex-col items-center text-center">
+                                    <div className="mb-4 h-20 w-20 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-2xl font-bold shadow-lg shadow-purple-900/40">
+                                        {user.email?.charAt(0).toUpperCase()}
                                     </div>
 
-                                    {/* Role Badge */}
-                                    <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-black/40 px-3 py-1 text-xs font-medium text-gray-300">
-                                        <member.roleIcon className="h-3 w-3" />
-                                        {member.role}
+                                    <h3 className="text-xl font-bold text-white group-hover:text-purple-400 transition-colors mb-1">
+                                        {name}
+                                    </h3>
+
+                                    <p className="text-sm text-gray-400 mb-4 line-clamp-2 min-h-[40px]">
+                                        {metadata.bio || "No bio available."}
+                                    </p>
+
+                                    <div className="flex flex-wrap gap-2 justify-center mb-4">
+                                        {skills.length > 0 ? skills.map((skill: string, i: number) => (
+                                            <span key={i} className="text-xs px-2 py-1 rounded-md bg-white/5 text-purple-300 border border-purple-500/20">
+                                                {skill.trim()}
+                                            </span>
+                                        )) : (
+                                            <span className="text-xs text-gray-600">No skills listed</span>
+                                        )}
                                     </div>
-                                </div>
 
-                                <h3 className="mb-2 text-xl font-bold text-white">
-                                    {member.name}
-                                </h3>
-
-                                {/* Tags */}
-                                <div className="mb-4 flex flex-wrap gap-2">
-                                    {member.tags.map((tag) => (
-                                        <span
-                                            key={tag}
-                                            className="rounded-md bg-white/5 px-2.5 py-1 text-xs font-medium text-gray-400 ring-1 ring-white/10"
-                                        >
-                                            {tag}
+                                    <div className="mt-auto pt-4 w-full flex items-center justify-between border-t border-white/5 text-xs text-gray-500">
+                                        <span>Joined {new Date(user.created_at).toLocaleDateString()}</span>
+                                        <span className="flex items-center gap-1">
+                                            <Code size={12} />
+                                            {metadata.projects?.length || 0} Projects
                                         </span>
-                                    ))}
+                                    </div>
                                 </div>
-
-                                <p className="text-sm text-gray-500">
-                                    {member.bio}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
+                            </Link>
+                        );
+                    })}
                 </div>
             </section>
 
