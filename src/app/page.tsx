@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Navbar } from "@/components/navbar";
-import FloatingLines from "@/components/FloatingLines";
+
+import Galaxy from "@/components/Galaxy";
 import { Features } from "@/components/features";
 import { CTASection } from "@/components/cta-section";
 import { Footer } from "@/components/footer";
@@ -13,19 +14,27 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden">
         {/* Background with 3D Floating Lines */}
-        <div className="absolute inset-0 z-0">
-          <FloatingLines
-            linesGradient={["#581c87", "#86198f", "#4c1d95"]}
-            enabledWaves={["top", "middle", "bottom"]}
-            lineCount={6}
-            lineDistance={4}
-            bendRadius={5}
-            bendStrength={-0.3}
-            interactive={true}
-            parallax={true}
-            parallaxStrength={0.1}
+
+        <div className="absolute inset-0 z-0 mix-blend-screen opacity-50">
+          <Galaxy
+            mouseRepulsion
+            mouseInteraction
+            density={1}
+            glowIntensity={0.3}
+            saturation={0}
+            hueShift={140}
+            twinkleIntensity={0.3}
+            rotationSpeed={0.1}
+            repulsionStrength={2}
+            autoCenterRepulsion={0}
+            starSpeed={0.5}
+            speed={1}
+            transparent={true}
           />
         </div>
+
+        {/* Gradient Glow behind text */}
+        <div className="absolute top-1/2 left-1/2 z-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-purple-600/60 blur-[120px] md:h-[800px] md:w-[800px]" />
 
         <div className="relative z-10 flex flex-col items-center px-4 text-center md:px-0">
           {/* 'NOW IN BETA' Badge */}

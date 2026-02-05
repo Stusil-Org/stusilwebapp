@@ -55,7 +55,7 @@ uniform float bendInfluence;
 uniform bool parallax;
 uniform float parallaxStrength;
 uniform vec2 parallaxOffset;
-uniform float globalScale;
+uniform vec2 globalScale;
 uniform float thickness;
 
 uniform vec3 lineGradient[8];
@@ -362,7 +362,7 @@ export default function FloatingLines({
       parallax: { value: parallax },
       parallaxStrength: { value: parallaxStrength },
       parallaxOffset: { value: new Vector2(0, 0) },
-      globalScale: { value: 1.0 },
+      globalScale: { value: new Vector2(1.0, 1.0) },
       thickness: { value: 0.0175 },
 
       lineGradient: {
@@ -405,15 +405,19 @@ export default function FloatingLines({
       const canvasHeight = renderer.domElement.height;
       uniforms.iResolution.value.set(canvasWidth, canvasHeight, 1);
 
-      // Auto-zoom for mobile screens (< 768px)
-      // Increasing scale makes the waves appear "Zoomed Out" (smaller features)
       const isMobile = width < 768;
 
-      // Scale 2.5x to show more wave cycles horizontally
-      uniforms.globalScale.value = isMobile ? 2.5 : 1.0;
-
-      // Increase thickness on mobile so high scale doesn't make lines invisible
-      uniforms.thickness.value = isMobile ? 0.035 : 0.0175;
+      // Use non-uniform scaling for mobile to look "stretched left-right"
+      // instead of "pulled down".
+      // We increase X scale to show more wave horizontally (compensate for narrow screen),
+      // but keep Y scale lower so it doesn't look vertically stretched.
+      if (isMobile) {
+        uniforms.globalScale.value.set(1.5, 1.0);
+        uniforms.thickness.value = 0.03; // thicker lines on mobile
+      } else {
+        uniforms.globalScale.value.set(1.0, 1.0);
+        uniforms.thickness.value = 0.0175;
+      }
     };
 
     setSize();
