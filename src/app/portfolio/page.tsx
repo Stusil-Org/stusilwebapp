@@ -3,6 +3,7 @@ import { Footer } from "@/components/footer";
 import { createClient } from "@/utils/supabase/server";
 import { PortfolioClient } from "./portfolio-client";
 import { redirect } from "next/navigation";
+import { getSuggestedPortfolios } from "./actions";
 
 export default async function PortfolioPage() {
     const supabase = await createClient();
@@ -12,10 +13,12 @@ export default async function PortfolioPage() {
         redirect("/login");
     }
 
+    const suggestedPortfolios = await getSuggestedPortfolios();
+
     return (
         <main className="flex min-h-screen flex-col bg-black text-white selection:bg-purple-500/30">
-            <Navbar />
-            <PortfolioClient user={user} />
+            <Navbar user={user} />
+            <PortfolioClient user={user} suggestedPortfolios={suggestedPortfolios} />
             <Footer />
         </main>
     );

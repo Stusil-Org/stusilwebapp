@@ -5,9 +5,22 @@ import { User, Eye, Code, Save, Plus, Edit2, X, Image as ImageIcon, Loader2, Che
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { updateProfile, addProject } from "./actions";
 import { useRouter } from "next/navigation";
+import { ProjectGrid } from "@/components/project-grid";
 
 interface PortfolioClientProps {
     user: SupabaseUser | null;
+    suggestedPortfolios: SuggestedPortfolio[];
+}
+
+interface SuggestedPortfolio {
+    id: string;
+    email?: string;
+    full_name: string;
+    bio: string;
+    skills: string;
+    projects: any[];
+    matchScore: number;
+    commonSkillsCount: number;
 }
 
 interface CustomSelectProps {
@@ -62,9 +75,10 @@ function CustomSelect({ value, onChange, options, placeholder, disabled }: Custo
     );
 }
 
-export function PortfolioClient({ user }: PortfolioClientProps) {
+export function PortfolioClient({ user, suggestedPortfolios }: PortfolioClientProps) {
     const [isEditingProfile, setIsEditingProfile] = useState(false);
     const [isAddingProject, setIsAddingProject] = useState(false);
+    const [viewingProfile, setViewingProfile] = useState<SuggestedPortfolio | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
@@ -230,6 +244,65 @@ export function PortfolioClient({ user }: PortfolioClientProps) {
                     </div>
                 </div>
 
+                {/* Suggested Portfolios Section */}
+                {suggestedPortfolios.length > 0 && (
+                    <div className="mb-20">
+                        <div className="flex items-center gap-2 mb-6">
+                            <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
+                                Discover Similar Minds
+                            </h2>
+                            <span className="px-3 py-1 rounded-full bg-purple-500/10 text-purple-300 text-xs font-bold border border-purple-500/20">
+                                Based on your skills
+                            </span>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {suggestedPortfolios.map((portfolio) => (
+                                <div key={portfolio.id} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all hover:border-purple-500/30 group relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-purple-600/10 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/2 pointer-events-none group-hover:bg-purple-600/20 transition-colors" />
+
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white shadow-lg shadow-purple-500/20">
+                                                {portfolio.full_name?.charAt(0).toUpperCase() || portfolio.email?.charAt(0).toUpperCase()}
+                                            </div>
+                                            <div>
+                                                <h3 className="font-bold text-white group-hover:text-purple-300 transition-colors">{portfolio.full_name || "Member"}</h3>
+                                                <p className="text-xs text-gray-500">{portfolio.commonSkillsCount} shared skills</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <p className="text-gray-400 text-sm mb-4 line-clamp-2 min-h-[40px]">
+                                        {portfolio.bio || "No bio available."}
+                                    </p>
+
+                                    <div className="flex flex-wrap gap-2 mb-6">
+                                        {(portfolio.skills.split(',').filter(s => s).slice(0, 3)).map((skill, i) => (
+                                            <span key={i} className="px-2 py-0.5 rounded text-[10px] bg-white/5 text-gray-300 border border-white/5">
+                                                {skill.trim()}
+                                            </span>
+                                        ))}
+                                        {(portfolio.skills.split(',').filter(s => s).length > 3) && (
+                                            <span className="px-2 py-0.5 rounded text-[10px] text-gray-500">
+                                                +{portfolio.skills.split(',').filter(s => s).length - 3} more
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    <button
+                                        onClick={() => setViewingProfile(portfolio)}
+                                        className="w-full py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition-colors border border-white/5 hover:border-white/10 flex items-center justify-center gap-2"
+                                    >
+                                        <Eye size={14} />
+                                        View Portfolio
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* Projects Section */}
                 <div className="mb-8 flex items-center justify-between">
                     <h2 className="text-2xl font-bold">Projects</h2>
@@ -384,39 +457,38 @@ export function PortfolioClient({ user }: PortfolioClientProps) {
                                 <label className="block text-sm font-bold text-gray-300">Completion Date</label>
                                 <div className="flex flex-wrap items-center gap-4">
                                     <div className="flex gap-2">
-                                        <select
-                                            className="bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-purple-500 disabled:opacity-50 appearance-none cursor-pointer hover:bg-white/5 transition-colors"
+                                        <CustomSelect
                                             value={projectData.completionDate ? projectData.completionDate.split('-')[1] : ""}
-                                            onChange={(e) => {
+                                            onChange={(val) => {
                                                 const year = projectData.completionDate ? projectData.completionDate.split('-')[0] : new Date().getFullYear().toString();
-                                                setProjectData({ ...projectData, completionDate: `${year}-${e.target.value}` });
+                                                setProjectData({ ...projectData, completionDate: `${year}-${val}` });
                                             }}
-                                            disabled={projectData.isOngoing}
-                                            required={!projectData.isOngoing}
-                                        >
-                                            <option value="" disabled>Month</option>
-                                            {Array.from({ length: 12 }, (_, i) => {
+                                            options={Array.from({ length: 12 }, (_, i) => {
                                                 const month = (i + 1).toString().padStart(2, '0');
-                                                return <option key={month} value={month}>{new Date(0, i).toLocaleString('default', { month: 'long' })}</option>
+                                                // Using a shorter format or full name, let's stick to full name as before but ensure label is string
+                                                return {
+                                                    label: new Date(0, i).toLocaleString('default', { month: 'long' }),
+                                                    value: month
+                                                };
                                             })}
-                                        </select>
-
-                                        <select
-                                            className="bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-purple-500 disabled:opacity-50 appearance-none cursor-pointer hover:bg-white/5 transition-colors"
-                                            value={projectData.completionDate ? projectData.completionDate.split('-')[0] : ""}
-                                            onChange={(e) => {
-                                                const month = projectData.completionDate ? projectData.completionDate.split('-')[1] : "01";
-                                                setProjectData({ ...projectData, completionDate: `${e.target.value}-${month}` });
-                                            }}
+                                            placeholder="Month"
                                             disabled={projectData.isOngoing}
-                                            required={!projectData.isOngoing}
-                                        >
-                                            <option value="" disabled>Year</option>
-                                            {Array.from({ length: 30 }, (_, i) => {
+                                        />
+
+                                        <CustomSelect
+                                            value={projectData.completionDate ? projectData.completionDate.split('-')[0] : ""}
+                                            onChange={(val) => {
+                                                const month = projectData.completionDate ? projectData.completionDate.split('-')[1] : "01";
+                                                setProjectData({ ...projectData, completionDate: `${val}-${month}` });
+                                            }}
+                                            options={Array.from({ length: 30 }, (_, i) => {
                                                 const year = new Date().getFullYear() - i;
-                                                return <option key={year} value={year}>{year}</option>
+                                                // Convert to string mostly because value is usually string in select, but our CustomSelect supports string|number in prop type but checks toString()
+                                                return { label: year.toString(), value: year.toString() };
                                             })}
-                                        </select>
+                                            placeholder="Year"
+                                            disabled={projectData.isOngoing}
+                                        />
                                     </div>
 
                                     <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-gray-300 hover:text-white select-none whitespace-nowrap">
@@ -497,6 +569,52 @@ export function PortfolioClient({ user }: PortfolioClientProps) {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+            {/* View Profile Modal */}
+            {viewingProfile && (
+                <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md overflow-y-auto">
+                    <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl w-full max-w-3xl my-auto shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
+                        {/* Header */}
+                        <div className="relative p-8 pb-0 z-10">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+
+                            <button
+                                onClick={() => setViewingProfile(null)}
+                                className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                            >
+                                <X size={20} />
+                            </button>
+
+                            <div className="flex flex-col md:flex-row gap-6 mb-8">
+                                <div className="h-24 w-24 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-3xl font-bold text-white shadow-xl shadow-purple-500/20 border-4 border-[#0A0A0A]">
+                                    {viewingProfile.full_name?.charAt(0).toUpperCase() || viewingProfile.email?.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <h2 className="text-3xl font-bold text-white mb-2">{viewingProfile.full_name || "Member"}</h2>
+                                    <p className="text-gray-400 mb-4 max-w-xl">{viewingProfile.bio || "No bio availalble."}</p>
+
+                                    <div className="flex flex-wrap gap-2">
+                                        {viewingProfile.skills.split(',').filter(s => s).map((skill, i) => (
+                                            <span key={i} className="px-3 py-1 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20 text-sm">
+                                                {skill.trim()}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Projects Scroll Area */}
+                        <div className="p-8 pt-4 overflow-y-auto custom-scrollbar">
+                            <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                                <Code size={20} className="text-purple-500" />
+                                Projects
+                            </h3>
+
+                            <ProjectGrid projects={viewingProfile.projects} />
+                        </div>
                     </div>
                 </div>
             )}

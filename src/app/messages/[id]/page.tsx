@@ -13,9 +13,9 @@ export default async function ChatPage({ params }: { params: Promise<{ id: strin
     if (!otherUser) return <div>User not found</div>;
 
     return (
-        <main className="flex min-h-screen flex-col bg-black text-white selection:bg-purple-500/30">
+        <main className="flex h-screen flex-col bg-black text-white overflow-hidden selection:bg-purple-500/30">
             <Navbar />
-            <div className="flex-1 pt-16">
+            <div className="flex-1 pt-20 h-full flex flex-col">
                 <ChatClient
                     initialMessages={messages}
                     currentUser={currentUser}

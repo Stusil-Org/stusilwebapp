@@ -16,27 +16,37 @@ const navLinks = [
     { name: "Messages", href: "/messages" },
 ];
 
-export function Navbar() {
+interface NavbarProps {
+    user?: User | null;
+}
+
+export function Navbar({ user: initialUser }: NavbarProps) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<User | null>(initialUser ?? null);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
     const router = useRouter();
     const supabase = createClient();
 
     useEffect(() => {
+        // If initialUser was not provided, fetch it.
+        // Even if provided, we might want to verify or listen for changes.
         const getUser = async () => {
+            // Only fetch if we don't have a user, or to refresh session
             const { data: { user } } = await supabase.auth.getUser();
             setUser(user);
         };
-        getUser();
+
+        if (!initialUser) {
+            getUser();
+        }
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setUser(session?.user ?? null);
         });
 
         return () => subscription.unsubscribe();
-    }, []);
+    }, [initialUser]);
 
     const handleSignOut = async () => {
         setIsUserMenuOpen(false); // Close menu

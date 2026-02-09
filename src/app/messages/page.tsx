@@ -4,10 +4,14 @@ import Link from "next/link";
 import { getConversations } from "./actions";
 import { MessageSquare, ArrowRight } from "lucide-react";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { createClient } from "@/utils/supabase/server";
 
 export const dynamic = 'force-dynamic';
 
 export default async function MessagesPage() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
     const rawConversations = await getConversations();
 
     // Fetch details for these users using admin client
@@ -26,7 +30,7 @@ export default async function MessagesPage() {
 
     return (
         <main className="flex min-h-screen flex-col bg-black text-white selection:bg-purple-500/30">
-            <Navbar />
+            <Navbar user={user} />
 
             <section className="flex-1 max-w-4xl mx-auto w-full px-4 pt-32 pb-20">
                 <div className="mb-8 flex items-center gap-3">

@@ -1,36 +1,37 @@
 import Link from "next/link";
 import { Navbar } from "@/components/navbar";
+import { createClient } from "@/utils/supabase/server";
 
-import Galaxy from "@/components/Galaxy";
+import { GridScan } from "@/components/GridScan";
 import { Features } from "@/components/features";
 import { CTASection } from "@/components/cta-section";
 import { Footer } from "@/components/footer";
 import { HeroButtons } from "@/components/hero-buttons";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <main className="bg-black text-white selection:bg-purple-500/30">
-      <Navbar />
+      <Navbar user={user} />
 
       {/* Hero Section */}
       <section className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden">
-        {/* Background with 3D Floating Lines */}
+        {/* Background with GridScan */}
 
-        <div className="absolute inset-0 z-0 mix-blend-screen opacity-50">
-          <Galaxy
-            mouseRepulsion
-            mouseInteraction
-            density={1}
-            glowIntensity={0.3}
-            saturation={0}
-            hueShift={140}
-            twinkleIntensity={0.3}
-            rotationSpeed={0.1}
-            repulsionStrength={2}
-            autoCenterRepulsion={0}
-            starSpeed={0.5}
-            speed={1}
-            transparent={true}
+        <div className="absolute inset-0 z-0 opacity-80 mix-blend-screen">
+          <GridScan
+            sensitivity={0.55}
+            lineThickness={1}
+            linesColor="#392e4e"
+            gridScale={0.1}
+            scanColor="#FF9FFC"
+            scanOpacity={0.4}
+            enablePost
+            bloomIntensity={0.6}
+            chromaticAberration={0.002}
+            noiseIntensity={0.01}
           />
         </div>
 
@@ -60,7 +61,7 @@ export default function Home() {
           </p>
 
           {/* CTA Buttons */}
-          <HeroButtons />
+          <HeroButtons user={user} />
         </div>
 
         {/* Decorative Gradient Overlay for Bottom fade out */}

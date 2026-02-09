@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { revalidatePath } from "next/cache";
 
 export async function updateProfile(formData: FormData) {
@@ -103,4 +104,52 @@ export async function addProject(formData: FormData) {
 
     revalidatePath("/portfolio");
     return { success: "Project added successfully" };
+}
+
+export async function getSuggestedPortfolios() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return [];
+
+    const userSkills = (user.user_metadata?.skills || "")
+        .split(",")
+        .map((s: string) => s.trim().toLowerCase())
+        .filter((s: string) => s.length > 0);
+
+    const adminClient = createAdminClient();
+    const { data: { users }, error } = await adminClient.auth.admin.listUsers();
+
+    if (error || !users) {
+        console.error("Error fetching users:", error);
+        return [];
+    }
+
+    const suggestions = users
+        .filter(u => u.id !== user.id) // Exclude self
+        .map(u => {
+            const otherSkills = (u.user_metadata?.skills || "")
+                .split(",")
+                .map((s: string) => s.trim().toLowerCase())
+                .filter((s: string) => s.length > 0);
+
+            // Calculate intersection
+            const commonSkills = userSkills.filter((s: string) => otherSkills.includes(s));
+            const score = commonSkills.length;
+
+            return {
+                id: u.id,
+                email: u.email,
+                full_name: u.user_metadata?.full_name || u.email?.split('@')[0],
+                bio: u.user_metadata?.bio || "",
+                skills: u.user_metadata?.skills || "", // original string
+                projects: u.user_metadata?.projects || [],
+                matchScore: score,
+                commonSkillsCount: commonSkills.length
+            };
+        })
+        .sort((a, b) => b.matchScore - a.matchScore) // Sort by most similar
+        .slice(0, 6); // Top 6
+
+    return suggestions;
 }

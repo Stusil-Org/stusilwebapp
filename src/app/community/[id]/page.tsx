@@ -2,6 +2,7 @@ import { createAdminClient } from "@/utils/supabase/admin";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { User, Code, Image as ImageIcon, Calendar, MessageSquare } from "lucide-react";
+import { ProjectGrid } from "@/components/project-grid";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -94,61 +95,7 @@ export default async function UserProfilePage({ params }: Props) {
                             </span>
                         </div>
 
-                        {projects.length > 0 ? (
-                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {projects.map((project, index) => (
-                                    <div key={index} className="group rounded-2xl border border-white/10 bg-white/5 overflow-hidden transition-all hover:border-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/10 flex flex-col h-full">
-                                        {/* Image Gallery Preview */}
-                                        <div className="aspect-video bg-black/50 relative overflow-hidden group">
-                                            {project.images && project.images.length > 0 ? (
-                                                <img
-                                                    src={project.images[0]}
-                                                    alt={project.title}
-                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-gray-600">
-                                                    <ImageIcon size={40} opacity={0.5} />
-                                                </div>
-                                            )}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
-                                                <p className="text-white font-medium text-sm">
-                                                    View details
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div className="p-6 flex-1 flex flex-col">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <h3 className="text-xl font-bold text-white group-hover:text-purple-400 transition-colors">
-                                                    {project.title}
-                                                </h3>
-                                                {project.completionDate && (
-                                                    <span className={`text-xs font-bold px-2 py-1 rounded-md border ${project.completionDate === 'Ongoing' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-green-500/10 text-green-400 border-green-500/20'}`}>
-                                                        {project.completionDate === 'Ongoing' ? 'In Progress' : project.completionDate}
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            <p className="text-gray-400 text-sm leading-relaxed mb-6 line-clamp-4">
-                                                {project.description}
-                                            </p>
-
-                                            <div className="mt-auto flex items-center justify-between pt-4 border-t border-white/5 text-xs text-gray-500">
-                                                <div className="flex items-center gap-2">
-                                                    <Calendar size={12} />
-                                                    <span>Added {new Date(project.createdAt).toLocaleDateString()}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="text-center py-20 rounded-3xl border border-dashed border-white/10 bg-white/5">
-                                <p className="text-gray-500 text-lg">No projects showcased yet.</p>
-                            </div>
-                        )}
+                        <ProjectGrid projects={projects} />
                     </div>
 
                 </div>

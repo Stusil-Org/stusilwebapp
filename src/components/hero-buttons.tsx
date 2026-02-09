@@ -5,23 +5,31 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 
-export function HeroButtons() {
-    const [user, setUser] = useState<User | null>(null);
+interface HeroButtonsProps {
+    user?: User | null;
+}
+
+export function HeroButtons({ user: initialUser }: HeroButtonsProps) {
+    const [user, setUser] = useState<User | null>(initialUser ?? null);
     const supabase = createClient();
 
     useEffect(() => {
         const getUser = async () => {
+            // Only fetch if we don't have a user, or to refresh session
             const { data: { user } } = await supabase.auth.getUser();
             setUser(user);
         };
-        getUser();
+
+        if (!initialUser) {
+            getUser();
+        }
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setUser(session?.user ?? null);
         });
 
         return () => subscription.unsubscribe();
-    }, []);
+    }, [initialUser]);
 
     return (
         <div className="flex flex-col items-center space-y-4 md:flex-row md:space-x-6 md:space-y-0">
